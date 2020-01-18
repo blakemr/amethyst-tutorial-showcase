@@ -8,19 +8,9 @@ use amethyst::{
     utils::application_root_dir,
 };
 
-// Initial game state.
-// The tutorial names this the same as the game name,
-// but I don't like that since working titles are common.
-pub struct BaseState;
+mod game;
 
-// Simpletate is a simplified State trait
-// SimpleState: https://docs-src.amethyst.rs/stable/amethyst/prelude/trait.SimpleState.html
-// State: https://docs-src.amethyst.rs/stable/amethyst/prelude/trait.State.html
-// "State" in the book: https://book.amethyst.rs/stable/concepts/state.html
-//
-// To clarify, State uses generics for all its implementation, whereas
-// SimpleState fills in these generics with what you would commonly use.
-impl SimpleState for BaseState {}
+use crate::game::BaseState;
 
 fn main() -> amethyst::Result<()> {
     // Set up a logger for game testing/debugging
