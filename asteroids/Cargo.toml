@@ -1,11 +1,11 @@
 [package]
 name = "asteroids"
 version = "0.1.0"
-authors = []
+authors = ["Matthew Blake"]
 edition = "2018"
 
 [dependencies]
-amethyst = "0.12.0"
+amethyst = "0.13.2"
 
 [features]
 empty = ["amethyst/empty"]
