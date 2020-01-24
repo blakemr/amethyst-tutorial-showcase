@@ -31,27 +31,14 @@ impl SimpleState for BaseState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
+        // Load the sprite sheet
+        let sprite_handle = load_spritesheet(world, "ship.png", "ship_sprite.ron");
+
         world.register::<Ship>();
 
         init_camera(world);
-        init_ship(world);
+        init_ship(world, sprite_handle);
     }
-}
-
-// Create the camera
-fn init_camera(world: &mut World) {
-    // Make the view scale to the window size.
-    let mut transform = Transform::default();
-
-    // this positions the camera so that 0,0 is the bottom left
-    transform.set_translation_xyz(VIEW_WIDTH * 0.5, VIEW_HEIGHT * 0.5, 1.0);
-
-    // Build the camera
-    world
-        .create_entity()
-        .with(Camera::standard_2d(VIEW_WIDTH, VIEW_HEIGHT))
-        .with(transform)
-        .build();
 }
 
 // Create the ship
@@ -75,8 +62,24 @@ impl Component for Ship {
     type Storage = DenseVecStorage<Self>;
 }
 
+// Create the camera
+fn init_camera(world: &mut World) {
+    // Make the view scale to the window size.
+    let mut transform = Transform::default();
+
+    // this positions the camera so that 0,0 is the bottom left
+    transform.set_translation_xyz(VIEW_WIDTH * 0.5, VIEW_HEIGHT * 0.5, 1.0);
+
+    // Build the camera
+    world
+        .create_entity()
+        .with(Camera::standard_2d(VIEW_WIDTH, VIEW_HEIGHT))
+        .with(transform)
+        .build();
+}
+
 // Makes a new ship with 3 lives
-fn init_ship(world: &mut World) {
+fn init_ship(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
     let mut ship_transform = Transform::default();
 
     // Position the ship in the center of the screen
@@ -84,11 +87,41 @@ fn init_ship(world: &mut World) {
     let y = VIEW_HEIGHT / 2.0;
     ship_transform.set_translation_xyz(x, y, 0.0);
 
+    // Assign a sprite to the ship
+    let sprite_render = SpriteRender {
+        sprite_sheet: sprite_sheet.clone(),
+        sprite_number: 0,
+    };
+
     // Build the ship
     let lives: i32 = 3;
     world
         .create_entity()
+        .with(sprite_render.clone())
         .with(Ship::new(lives))
         .with(ship_transform)
         .build();
+}
+
+// Load Spritesheets
+fn load_spritesheet(
+    world: &mut World,
+    spritesheet: &str,
+    sprite_data: &str,
+) -> Handle<SpriteSheet> {
+    // Put together a texture handle for the image.
+    let texture_handle = {
+        let loader = world.read_resource::<Loader>();
+        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+        loader.load(spritesheet, ImageFormat::default(), (), &texture_storage)
+    };
+
+    let loader = world.read_resource::<Loader>();
+    let sprite_data_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
+    loader.load(
+        sprite_data,
+        SpriteSheetFormat(texture_handle),
+        (),
+        &sprite_data_storage,
+    )
 }
