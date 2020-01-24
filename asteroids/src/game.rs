@@ -31,6 +31,8 @@ impl SimpleState for BaseState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
+        world.register::<Ship>();
+
         init_camera(world);
         init_ship(world);
     }
